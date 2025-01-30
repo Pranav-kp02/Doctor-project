@@ -260,7 +260,7 @@ exports.veiwAllUsers = async (req, res) => {
 exports.bookAppoiment = async (req, res) => {
   const { docId } = req.params;
   const uId = req.id;
-  const { bookTime, bookDate } = req.body;
+  const { time, date } = req.body;
 
   if (!uId) {
     return res.status(400).json({
@@ -269,7 +269,7 @@ exports.bookAppoiment = async (req, res) => {
     });
   }
 
-  if (!bookTime || !bookDate) {
+  if (!time || !date) {
     return res.status(400).json({
       sucess: false,
       message: "enter full details",
@@ -294,15 +294,15 @@ exports.bookAppoiment = async (req, res) => {
 
   let slots_booked = doctor.slots_booked;
 
-  if (slots_booked[bookDate]) {
-    if (slots_booked[bookDate].includes(bookTime)) {
+  if (slots_booked[date]) {
+    if (slots_booked[date].includes(time)) {
       return res.json({ success: false, message: "slot not avilable" });
     } else {
-      slots_booked[bookDate].push(bookTime);
+      slots_booked[date].push(time);
     }
   } else {
-    slots_booked[bookDate] = [];
-    slots_booked[bookDate].push(bookTime);
+    slots_booked[date] = [];
+    slots_booked[date].push(time);
   }
 
   const fee = doctor.fees;
@@ -315,8 +315,8 @@ exports.bookAppoiment = async (req, res) => {
     userData,
     docData: doctor,
     fees: doctor.fees,
-    slotBookedDate: bookDate,
-    slotBookedTime: bookTime,
+    slotBookedDate: date,
+    slotBookedTime: time,
   };
 
   const newAppoiment = new APPOIMENT(appoimentData);
@@ -328,5 +328,63 @@ exports.bookAppoiment = async (req, res) => {
     success: true,
     message: "Booked appoiment successfully",
     fee,
+  });
+};
+
+exports.userAppoimentCancel = async (req, res) => {
+  const uId = req.id;
+  if (!uId) {
+    return res.status(400).json({
+      sucess: false,
+      message: "user inValid",
+    });
+  }
+  const { AppoimentId } = req.params;
+  const { cancel } = req.body;
+  if (!AppoimentId) {
+    return res.status(401).json({
+      success: false,
+      message: "Appoiment not found",
+    });
+  }
+
+  const appoiment = await APPOIMENT.findById(AppoimentId);
+  if (!appoiment || appoiment.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: "No appoiment yet",
+    });
+  }
+
+  appoiment.isCancelled = cancel;
+
+  await appoiment.save();
+  return res.status(200).json({
+    success: true,
+    message: "cancelled",
+  });
+};
+
+exports.userAllAppoiment = async (req, res) => {
+  const uId = req.id;
+  if (!uId) {
+    return res.status(400).json({
+      sucess: false,
+      message: "user inValid",
+    });
+  }
+
+  const appoiment = (await APPOIMENT.find({ userId: uId })).reverse();
+  if (!appoiment) {
+    return res.status(400).json({
+      sucess: false,
+      message: "appoiment inValid",
+    });
+  }
+
+  res.status(201).json({
+    success: true,
+    message: "successfully",
+    appoiment,
   });
 };

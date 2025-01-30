@@ -161,10 +161,37 @@ exports.adminDashbord = async (req, res) => {
     doctors: doctors.length,
     user: user.length,
     appoiment: appoiment.length,
-    latestAppoiment: appoiment.reverse().slice(0, 5),
+    latestAppoiment: appoiment.reverse().slice(0, 3),
   };
   res.status(200).json({
     success: true,
     dashData,
+  });
+};
+
+exports.adminCancelAppoiment = async (req, res) => {
+  const { AppoimentId } = req.params;
+  const { cancel } = req.body;
+  if (!AppoimentId) {
+    return res.status(401).json({
+      success: false,
+      message: "Appoiment not found",
+    });
+  }
+
+  const appoiment = await APPOIMENT.findById(AppoimentId);
+  if (!appoiment || appoiment.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: "No appoiment yet",
+    });
+  }
+
+  appoiment.isCancelled = cancel;
+
+  await appoiment.save();
+  return res.status(200).json({
+    success: true,
+    message: "cancelled",
   });
 };

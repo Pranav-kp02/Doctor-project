@@ -5,6 +5,8 @@ const {
   userProfile,
   userUpdate,
   userDelete,
+  userAppoimentCancel,
+  userAllAppoiment,
 } = require("../controller/userControl");
 const { authentication } = require("../middleWare/auth");
 const { veiwAllDoctors } = require("../controller/doctorCntrol");
@@ -18,5 +20,9 @@ userRouter
   .put(authentication, userUpdate)
   .delete(authentication, userDelete);
 userRouter.route("/userAllDoctors").get(authentication, veiwAllDoctors);
+userRouter.route("/userAllAppoiment").get(authentication, userAllAppoiment);
+userRouter
+  .route("/cancelAppoiment/:AppoimentId")
+  .put(authentication, userAppoimentCancel);
 
 module.exports = userRouter;

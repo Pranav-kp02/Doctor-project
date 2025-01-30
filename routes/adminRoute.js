@@ -10,6 +10,7 @@ const {
   adminDashbord,
   veiwAllDoctorsAdmin,
   docAvailableToggle,
+  adminCancelAppoiment,
 } = require("../controller/admincntrol");
 const adminRoute = express.Router();
 
@@ -48,5 +49,9 @@ adminRoute
 adminRoute
   .route("/banUser/:uId")
   .post(authentication, authorization("admin"), bannUser);
+
+adminRoute
+  .route("/appoimentCancel/:AppoimentId")
+  .put(authentication, authorization("admin"), adminCancelAppoiment);
 
 module.exports = adminRoute;
